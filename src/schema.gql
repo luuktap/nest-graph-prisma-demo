@@ -4,24 +4,17 @@
 
 input CreateTodoInput {
   content: String!
-  done: Boolean!
-  userId: Int!
-}
-
-input CreateUserInput {
-  email: String!
-  name: String!
+  done: Boolean
 }
 
 type Mutation {
   createTodo(data: CreateTodoInput!): Todo!
-  createUser(data: CreateUserInput!): User!
   updateTodo(data: UpdateTodoInput!, id: Int!): Todo!
   updateUser(data: UpdateUserInput!, id: Int!): User!
 }
 
 type Query {
-  allTodosForUser(userId: Int!): [Todo!]
+  allTodosForUser: [Todo!]
   allUsers: [User!]
 }
 
@@ -40,6 +33,7 @@ input UpdateTodoInput {
 input UpdateUserInput {
   email: String
   name: String
+  password: String
 }
 
 type User {

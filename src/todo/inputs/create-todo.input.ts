@@ -1,13 +1,10 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
 
 @InputType()
 export class CreateTodoInput {
   @Field()
   content: string;
 
-  @Field()
-  done: boolean;
-
-  @Field()
-  userId: number;
+  @Field({ nullable: true })
+  done?: boolean;
 }

@@ -1,17 +1,21 @@
+import { UseGuards } from '@nestjs/common';
 import {
   Args,
+  Context,
   Mutation,
   Query,
   ResolveField,
   Resolver,
   Root,
 } from '@nestjs/graphql';
+import { hashSync } from 'bcrypt';
+import { GqlJwtAuthGuard } from 'src/auth/guards/gql-jwt-auth.guard';
 import { PrismaService } from 'src/database/prisma.service';
-import { CreateUserInput } from './inputs/create-user.input';
 import { UpdateUserInput } from './inputs/update-user.input';
 import { User } from './user';
 
 @Resolver(User)
+@UseGuards(GqlJwtAuthGuard)
 export class UserResolver {
   constructor(private prismaService: PrismaService) {}
 
@@ -25,24 +29,23 @@ export class UserResolver {
   }
 
   @Mutation(() => User)
-  createUser(@Args('data') data: CreateUserInput) {
-    return this.prismaService.user.create({
-      data: {
-        email: data.email,
-        name: data.name,
-      },
-    });
-  }
+  updateUser(
+    @Args('id') id: number,
+    @Args('data') data: UpdateUserInput,
+    @Context() ctx: { req: { user: User } },
+  ) {
+    if (data.password) {
+      data.password = hashSync(data.password, 10);
+    }
 
-  @Mutation(() => User)
-  updateUser(@Args('id') id: number, @Args('data') data: UpdateUserInput) {
     return this.prismaService.user.update({
       where: {
-        id,
+        id: ctx.req.user.id,
       },
       data: {
         email: data.email || undefined,
         name: data.name || undefined,
+        password: data.password || undefined,
       },
     });
   }
